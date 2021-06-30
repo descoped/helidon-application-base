@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -92,7 +93,7 @@ public class HelidonDeployment {
         private final AtomicBoolean ifRoutingPresent = new AtomicBoolean(false);
         private Routing.Builder routingBuilder;
         private ServiceFactory serviceFactory = ServiceFactory.create();
-        private Config.Builder finalConfigBuilder;
+        private AtomicReference<Config.Builder> finalConfigBuilderRef = new AtomicReference<>();
 
         public Builder() {
             routingBuilder = Routing.builder();
@@ -100,11 +101,6 @@ public class HelidonDeployment {
 
         public Builder configBuilder(Config.Builder defaultConfigBuilder) {
             this.configBuilder = defaultConfigBuilder;
-            return this;
-        }
-
-        public Builder finalConfigBuilder(Config.Builder finalConfigBuilder) {
-            this.finalConfigBuilder = finalConfigBuilder;
             return this;
         }
 
@@ -218,11 +214,11 @@ public class HelidonDeployment {
             Objects.requireNonNull(webserverProperty);
             Objects.requireNonNull(serviceFactory);
 
-            Config.Builder configBuilder = ofNullable(finalConfigBuilder).orElseGet(() -> {
+            Config.Builder configBuilder = ofNullable(finalConfigBuilderRef.get()).orElseGet(() -> {
                 final Config.Builder mutableBuilder = ofNullable(this.configBuilder).orElseGet(ConfigHelper::createDefaultConfigBuilder);
                 configSources.forEach(mutableBuilder::addSource);
                 overrideSources.forEach(mutableBuilder::overrides);
-                finalConfigBuilder(mutableBuilder); // workaround for: "io.helidon.config.ConfigException: Attempting to load a single config source multiple times. This is a bug."
+                finalConfigBuilderRef.set(mutableBuilder); // workaround for: "io.helidon.config.ConfigException: Attempting to load a single config source multiple times. This is a bug."
                 return mutableBuilder;
             });
 
