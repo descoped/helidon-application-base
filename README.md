@@ -1,10 +1,6 @@
 # Application Server Base
 
-Helidon Application is a simple framework that solves:
-
-* Application services with Lifecycle management
-* Application deployment
-* Application bootstrap with Helidon WebServer 
+A tiny non-intrusive library that bootstraps your Helidon WebServer with Application services. 
 
 ## Example of use
 
@@ -20,7 +16,7 @@ HelidonApplication.newBuilder()
         .orTimeout(10, TimeUnit.SECONDS)
         .exceptionally(throwable -> {
             LOG.error("While starting application", throwable);
-            System.exit(1);
+            System.exit(0);
             return null;
         });
 ```
