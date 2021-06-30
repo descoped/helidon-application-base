@@ -1,0 +1,6 @@
+webserver:
+  port: 9990
+  host: 0.0.0.0
+  access-log:
+    logger-name: "agent"
+    format: "%h %u %t %r %s %b %{Referer}i %T"
