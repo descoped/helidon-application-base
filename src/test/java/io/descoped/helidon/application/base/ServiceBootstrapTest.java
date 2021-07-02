@@ -32,8 +32,8 @@ public class ServiceBootstrapTest {
             try {
                 startupFuture.completeAsync(() -> startup(service))
                         .exceptionally(t -> {
-                            if (t instanceof RuntimeException) {
-                                throw (RuntimeException) t;
+                            if (t instanceof RuntimeException e) {
+                                throw e;
                             }
                             throw new RuntimeException(t);
                         })
@@ -57,8 +57,8 @@ public class ServiceBootstrapTest {
                         })
                         .whenComplete((v, ignore) -> {
                             if (errorCause.get() != null) {
-                                if (errorCause.get() instanceof RuntimeException) {
-                                    throw (RuntimeException) errorCause.get();
+                                if (errorCause.get() instanceof RuntimeException e) {
+                                    throw e;
                                 }
                                 throw new RuntimeException(errorCause.get());
                             }

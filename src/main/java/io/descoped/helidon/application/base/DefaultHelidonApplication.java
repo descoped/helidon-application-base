@@ -116,8 +116,8 @@ public class DefaultHelidonApplication implements HelidonApplication {
                                                 return service;
                                             }, pool)
                                             .exceptionally(t -> {
-                                                if (t instanceof RuntimeException) {
-                                                    throw (RuntimeException) t;
+                                                if (t instanceof RuntimeException e) {
+                                                    throw e;
                                                 }
                                                 throw new RuntimeException(t);
                                             })
@@ -177,8 +177,8 @@ public class DefaultHelidonApplication implements HelidonApplication {
                                                 return service;
                                             }, pool)
                                             .exceptionally(t -> {
-                                                if (t instanceof RuntimeException) {
-                                                    throw (RuntimeException) t;
+                                                if (t instanceof RuntimeException e) {
+                                                    throw e;
                                                 }
                                                 throw new RuntimeException(t);
                                             })
@@ -242,8 +242,8 @@ public class DefaultHelidonApplication implements HelidonApplication {
                 })
                 .whenComplete((v, ignore) -> {
                     if (errorCause.get() != null) {
-                        if (errorCause.get() instanceof RuntimeException) {
-                            throw (RuntimeException) errorCause.get();
+                        if (errorCause.get() instanceof RuntimeException e) {
+                            throw e;
                         }
                         throw new RuntimeException(errorCause.get());
                     }
