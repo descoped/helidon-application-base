@@ -15,7 +15,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
@@ -93,7 +92,6 @@ public class HelidonDeployment {
         private final AtomicBoolean ifRoutingPresent = new AtomicBoolean(false);
         private Routing.Builder routingBuilder;
         private ServiceFactory serviceFactory = ServiceFactory.create();
-        private AtomicReference<Config.Builder> finalConfigBuilderRef = new AtomicReference<>();
 
         public Builder() {
             routingBuilder = Routing.builder();
@@ -116,7 +114,9 @@ public class HelidonDeployment {
         }
 
         public Builder overrideSource(OverrideSource overrideSource) {
-            overrideSources.add(overrideSource);
+            if (!overrideSources.contains(overrideSource)) {
+                overrideSources.add(overrideSource);
+            }
             return this;
         }
 
@@ -214,15 +214,22 @@ public class HelidonDeployment {
             Objects.requireNonNull(webserverProperty);
             Objects.requireNonNull(serviceFactory);
 
-            Config.Builder configBuilder = ofNullable(finalConfigBuilderRef.get()).orElseGet(() -> {
-                final Config.Builder mutableBuilder = ofNullable(this.configBuilder).orElseGet(ConfigHelper::createDefaultConfigBuilder);
-                configSources.forEach(mutableBuilder::addSource);
-                overrideSources.forEach(mutableBuilder::overrides);
-                finalConfigBuilderRef.set(mutableBuilder); // workaround for: "io.helidon.config.ConfigException: Attempting to load a single config source multiple times. This is a bug."
-                return mutableBuilder;
+            LOG.info("");
+//            final Config.Builder copyOfConfigBuilder = ofNullable(this.configBuilder).orElseGet(ConfigHelper::createDefaultConfigBuilder);
+            LOG.warn("build configBuilder: ..> {}", configBuilder);
+            final Config.Builder copyOfConfigBuilder = ofNullable(this.configBuilder).orElseGet(ConfigHelper::createEmptyConfigBuilder);
+            // workaround for: "io.helidon.config.ConfigException: Attempting to load a single config source multiple times. This is a bug."
+            configSources.forEach(source -> {
+                final ConfigSource addSource = ConfigSources.create(ConfigHelper.createEmptyConfigBuilder().sources(source).build());
+                LOG.warn("build configSource: --> {}", ConfigHelper.createEmptyConfigBuilder().sources(source).build().asMap().get().toString());
+                copyOfConfigBuilder.addSource(addSource);
+            });
+            overrideSources.forEach(overridingSource -> {
+                LOG.warn("build overrideSource: ==> {}", ConfigHelper.createEmptyConfigBuilder().overrides(overridingSource).build().asMap().get().toString());
+                copyOfConfigBuilder.overrides(overridingSource);
             });
 
-            Config computedConfig = configBuilder.build();
+            Config computedConfig = copyOfConfigBuilder.build();
 
             //LOG.trace("TestServer.Builder Config:\n\t{}", computedConfig.detach().asMap().get().toString().replace(", ", "\n\t").replace("{", "").replace("}", ""));
 

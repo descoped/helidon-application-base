@@ -9,7 +9,9 @@ public class ConfigHelper {
     }
 
     public static Config.Builder createEmptyConfigBuilder() {
-        return Config.builder().disableEnvironmentVariablesSource().disableSystemPropertiesSource();
+        return Config.builder()
+                .disableEnvironmentVariablesSource()
+                .disableSystemPropertiesSource();
     }
 
 }
