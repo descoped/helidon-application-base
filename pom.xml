@@ -14,7 +14,7 @@
     <description>Helidon Application Base</description>
 
     <properties>
-        <java.version>16</java.version>
+        <java.version>17</java.version>
         <module.build.sourceEncoding>UTF-8</module.build.sourceEncoding>
         <maven.javadoc.skip>true</maven.javadoc.skip>
 
@@ -118,8 +118,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
                 <configuration>
-                    <source>16</source>
-                    <target>16</target>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                     <release>${java.version}</release>
                     <encoding>${module.build.sourceEncoding}</encoding>
                     <meminitial>64m</meminitial>
